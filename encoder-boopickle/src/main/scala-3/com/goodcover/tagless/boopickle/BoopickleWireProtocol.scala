@@ -206,9 +206,14 @@ object BoopickleWireProtocol {
     def transformVal(value: ValDef): Option[Term] =
       None
 
+    val defaultArgRegex = """.*\$default\$\d+""".r
+    val skipFlags       = List(Flags.Final, Flags.Artifact, Flags.Synthetic, Flags.Mutable, Flags.Param)
+
     val members: List[(String, Expr[UnpickleState => PairE[WireProtocol.Invocation[Alg, *], WireProtocol.Encoder]])] =
       algSym.declarations
         .filterNot(_.isClassConstructor)
+        .filterNot(m => skipFlags.exists(m.flags.is))
+        .filterNot(m => defaultArgRegex.matches(m.name))
         .flatMap: member =>
           member.tree match
             case method: DefDef => mkDecode(method)(method.paramss.map(_.params))

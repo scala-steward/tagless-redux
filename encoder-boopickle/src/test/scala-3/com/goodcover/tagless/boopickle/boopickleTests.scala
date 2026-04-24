@@ -58,6 +58,16 @@ object boopickleTests {
 
     implicit def wireProtocol: WireProtocol[SafeAlg2] = BoopickleWireProtocol.derive
   }
+
+  trait WithDefaults[F[_]] {
+    def withDefault(s: String, n: Int = 5, flag: Boolean = true): F[Int]
+  }
+
+  object WithDefaults {
+    implicit def functorK: FunctorK[WithDefaults] = Derive.functorK
+
+    implicit def wireProtocol: WireProtocol[WithDefaults] = BoopickleWireProtocol.derive
+  }
 }
 
 class boopickleTests extends AnyFunSuite with Matchers {
@@ -166,5 +176,18 @@ class boopickleTests extends AnyFunSuite with Matchers {
     val fooServer = server(actions)
     val fooClient = client[SafeAlg2, Id](fooServer)
     fooClient.test2("Fooo").toEither shouldBe Right(("Fooo", true))
+  }
+
+  test("trait with default parameters") {
+    import com.goodcover.tagless.boopickle.boopickleTests.WithDefaults
+
+    val actions = new WithDefaults[Id] {
+      override def withDefault(s: String, n: Int, flag: Boolean): Id[Int] =
+        s.length + n + (if (flag) 1 else 0)
+    }
+
+    val fooServer = server(actions)
+    val fooClient = client[WithDefaults, Id](fooServer)
+    fooClient.withDefault("ab", 5, true).toEither shouldBe Right(2 + 5 + 1)
   }
 }
