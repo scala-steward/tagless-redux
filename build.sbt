@@ -4,7 +4,7 @@ import sbtrelease.ReleaseStateTransformations.*
 import java.net.URI
 
 val scalaV            = "2.13.18"
-val scala3V           = "3.8.1"
+val scala3V           = "3.7.4"
 val taglessV          = "0.16.5"
 val pekkoV            = "1.0.3"
 val altooV            = "1.3.0"
@@ -36,7 +36,7 @@ lazy val macroAnnotationSettings = Seq(
   })
 )
 
-ThisBuild / scalaVersion := scalaV
+ThisBuild / scalaVersion := scala3V
 ThisBuild / organization := "com.goodcover.redux"
 
 ThisBuild / intellijPluginName := "tagless-redux-ijext"
@@ -246,7 +246,7 @@ lazy val buildSettings = inConfig(Compile)(extraOptions) ++ inConfig(Test)(extra
 
 lazy val commonSettings = Seq(
   Test / parallelExecution := false,
-  scalaVersion             := scalaV,
+  scalaVersion             := scala3V,
   crossScalaVersions       := Seq(scalaV, scala3V),
   organization             := "com.goodcover.redux",
   developers               := List(
